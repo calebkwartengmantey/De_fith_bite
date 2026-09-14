@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu — De 5th Bite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="menu-btn" aria-haspopup="true" aria-controls="site-drawer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <span class="label">MENU</span>
+    </button>
+    <div class="wordmark">De <span class="accent">5th Bite</span></div>
+    <a href="index.html" aria-label="De 5th Bite home">
+      <img src="images/logo.png" alt="De 5th Bite logo" class="brand-mark">
+    </a>
+  </div>
+</header>
+
+<div class="drawer-overlay"></div>
+<nav class="drawer" id="site-drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div class="wordmark">De <span class="accent">5th Bite</span></div>
+    <button class="drawer-close" aria-label="Close menu">&times;</button>
+  </div>
+  <ul class="drawer-nav">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="menu.html" aria-current="page">Menu</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="news.html">News</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="drawer-foot">
+    <p>Opened daily</p>
+    <p class="phone">024 845 1683</p>
+    <P class="phone">059 527 2224</P>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="menu-page-head">
+    <h1>Menu</h1>
+    <p class="note">To order, tap the WhatsApp button on any item — or <a href="#" data-wa-general>message us directly</a>.</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-target="panel-shawarma" role="tab">SHAWARMA</button>
+    <button class="tab" data-target="panel-fries" role="tab">LOADED FRIES</button>
+    <button class="tab" data-target="panel-cakes" role="tab">CAKES</button>
+  </div>
+
+  <div class="menu-panel active" id="panel-shawarma">
+    <div class="product-grid">
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/chicken-shawarma.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/chicken-shawarma.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Chicken Shawarma</h3>
+          <span class="product-price">GH₵40</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Spicy chicken, cabbage, lettuce, carrots, juicy spicy sauce.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Chicken Shawarma" data-wa-price="GH₵40">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/sausage-shawarma.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/sausage-shawarma.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Sausage Shawarma</h3>
+          <span class="product-price">GH₵40</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">sausage, fried eggs, cabbage, carrots, lettuce, spicy and juicy sauce</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Sausage Shawarma" data-wa-price="GH₵40">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/beef-shawarma.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/beef-shawarma.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Beef Shawarma</h3>
+          <span class="product-price">GH₵50</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">beef, sausage, fried eggs, cabbage, carrots, lettuce, spicy and juicy sauce.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Beef Shawarma" data-wa-price="GH₵50">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/mixed-shawarma.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/mixed-shawarma.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Mixed Shawarma</h3>
+          <span class="product-price">GH₵60</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Spicy beef and chicken, cabbage, onion, lettuce, carrots, garlic and shawarma sauce.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Mixed Shawarma" data-wa-price="GH₵60">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/loaded-shawarma.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/loaded-shawarma.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Loaded Shawarma</h3>
+          <span class="product-price">GH₵80</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Chicken or beef, sausage, fried eggs, cabbage, carrots, lettuce, spicy and juicy sauce.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Loaded Shawarma" data-wa-price="GH₵80">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/ultimate-shawarma.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/ultimate-shawarma.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Ultimate Shawarma</h3>
+          <span class="product-price">GH₵100</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Chicken and beef, cheese, French fries, sausage, fried egg, spicy and shawarma sauce.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Ultimate Shawarma" data-wa-price="GH₵100">Click to Order</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-fries">
+    <div class="product-grid">
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/loaded-fries-chicken.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/loaded-fries-chicken.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Loaded Fries Chicken</h3>
+          <span class="product-price">GH₵80</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Ingredients coming soon.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Loaded Fries Chicken" data-wa-price="GH₵80">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/loaded-fries-mix-combo.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/loaded-fries-mix-combo.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>Loaded Fries Mix Combo</h3>
+          <span class="product-price">GH₵100</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Ingredients</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Ingredients coming soon.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="Loaded Fries Mix Combo" data-wa-price="GH₵100">Click to Order</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-cakes">
+    <div class="product-grid">
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/cake-6-inch.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/cake-6-inch.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>6 Inch Cake</h3>
+          <span class="product-price">GH₵250–350</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Number of people</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Suitable for 6–10 people.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="6 Inch Cake" data-wa-price="GH₵250–350">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/cake-8-inch.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/cake-8-inch.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>8 Inch Cake</h3>
+          <span class="product-price">GH₵350–450</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Number of people</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Suitable for 10–15 people.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="8 Inch Cake" data-wa-price="GH₵350–450">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/cake-10-inch.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/cake-10-inch.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>10 Inch Cake</h3>
+          <span class="product-price">GH₵450–600</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Number of people</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Suitable for 15–25 people.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="10 Inch Cake" data-wa-price="GH₵450–600">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/cake-12-inch.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/cake-12-inch.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>12 Inch Cake</h3>
+          <span class="product-price">GH₵600–800</span>
+          <button type="button" class="details-toggle" aria-expanded="false">
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="6 9 12 15 18 9"/></svg>
+            <span class="toggle-label">Number of people</span>
+          </button>
+          <div class="product-desc-wrap"><div class="product-desc-inner"><p class="product-desc">Suitable for 25–40 people.</p></div></div>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="12 Inch Cake" data-wa-price="GH₵600–800">Click to Order</a>
+        </div>
+      </div>
+
+    </div>
+
+    <h3 class="panel-subhead">Wedding Cakes</h3>
+    <div class="product-grid">
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/wedding-cake-2-tier.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/wedding-cake-2-tier.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>2-Tier Wedding Cake</h3>
+          <span class="product-price">GH₵800–1,200</span>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="2-Tier Wedding Cake" data-wa-price="GH₵800–1,200">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/wedding-cake-3-tier.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/wedding-cake-3-tier.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>3-Tier Wedding Cake</h3>
+          <span class="product-price">GH₵1,200–1,800</span>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="3-Tier Wedding Cake" data-wa-price="GH₵1,200–1,800">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/wedding-cake-4-tier.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/wedding-cake-4-tier.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>4-Tier Wedding Cake</h3>
+          <span class="product-price">GH₵1,800–2,400</span>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="4-Tier Wedding Cake" data-wa-price="GH₵1,800–2,400">Click to Order</a>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-photo">
+          <img src="images/wedding-cake-5-tier.jpg" alt="" onerror="this.remove()">
+          <span class="ph-label">Add photo (images/wedding-cake-5-tier.jpg)</span>
+        </div>
+        <div class="product-body">
+          <h3>5-Tier Wedding Cake</h3>
+          <span class="product-price">GH₵2,400–3,000</span>
+          <a href="#" class="btn btn-whatsapp btn-block" data-wa-item="5-Tier Wedding Cake" data-wa-price="GH₵2,400–3,000">Click to Order</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="wordmark" style="font-size:18px;">De <span class="accent">5th Bite</span></div>
+    <p style="margin:0;">024 845 1683 · Opened daily, 10am – 10pm</p>
+    <p class="footer-credit">Developed by <a href="#">CKM Web Solutions</a></p>
+  </div>
+</footer>
+
+<a href="#" class="wa-float" data-wa-general>
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.1.2-.3.2-.6.1-.3-.1-1.2-.5-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.3-.4.1-.2 0-.4 0-.5C10.4 9 10 7.9 9.8 7.5c-.2-.4-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3 4.8 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.5-.1 1.7-.7 1.9-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.6 1.4 5.2L2 22l4.9-1.3C8.5 21.5 10.2 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3 .8.8-2.9-.2-.3C4.2 15 3.8 13.5 3.8 12c0-4.5 3.7-8.2 8.2-8.2s8.2 3.7 8.2 8.2-3.7 8.2-8.2 8.2z"/></svg>
+  <span class="label">Order on WhatsApp</span>
+</a>
+
+<script src="js/script.js"></script>
+</body>
+</html>
