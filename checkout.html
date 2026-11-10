@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — De 5th Bite</title>
+<link rel="icon" type="image/x-icon" href="images/Logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="site-page">
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="wordmark">De <span class="accent">5th Bite</span></div>
+    <div class="topbar-right">
+      <button type="button" class="cart-btn" aria-haspopup="true" aria-controls="cart-drawer" aria-label="Cart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span class="cart-badge" data-cart-count hidden>0</span>
+      </button>
+      <a href="index.html" aria-label="De 5th Bite home"><img src="images/Logo.png" alt="De 5th Bite logo" class="brand-mark"></a>
+    </div>
+  </div>
+</header>
+<div class="cart-overlay"></div>
+<aside class="cart-drawer" id="cart-drawer" aria-hidden="true">
+  <div class="cart-drawer-head"><h2>Your Cart</h2><button class="cart-close" aria-label="Close cart">&times;</button></div>
+  <div class="cart-items" data-cart-items></div>
+  <div class="cart-drawer-foot">
+    <div class="cart-subtotal-row"><span>Subtotal</span><span data-cart-subtotal>GH₵0</span></div>
+    <p class="cart-note" data-cart-cake-note hidden>Cake prices are confirmed on WhatsApp and aren't included in the subtotal above.</p>
+    <a href="checkout.html" class="btn btn-primary btn-block" data-cart-checkout>Checkout</a>
+    <a href="#" class="cart-cake-checkout" data-cart-cake-checkout hidden>Ask about cakes on WhatsApp</a>
+  </div>
+</aside>
+<div class="site-page-layout">
+  <nav class="home-rail" aria-label="Main navigation">
+    <a class="home-rail-link" href="index.html"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
+    <a class="home-rail-link" href="menu.html"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Menu</span></a>
+    <a class="home-rail-link" href="orders.html"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a2 2 0 0 1 2 2v16l-3-2-3-2-3 2-3-2-3 2V5a2 2 0 0 1 2-2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Orders</span></a>
+    <a class="home-rail-link" href="about.html"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>About</span></a>
+    <a class="home-rail-link" href="news.html"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/></svg><span>News</span></a>
+    <a class="home-rail-link" href="contact.html"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="m4 7 8 6 8-6"/></svg><span>Contact</span></a>
+  </nav>
+  <main class="site-page-content">
+    <div class="container order-page">
+      <div class="menu-page-head"><h1>Checkout</h1><p class="note">Pickup only. Pay securely with the payment methods available through Paystack.</p></div>
+      <div class="checkout-layout">
+        <form class="checkout-form" data-checkout-form>
+          <label>Full name<input name="name" autocomplete="name" required maxlength="100"></label>
+          <label>Phone number<input name="phone" type="tel" autocomplete="tel" placeholder="024 123 4567" required maxlength="20"></label>
+          <p class="form-hint">Use the same phone number to later track your order.</p>
+          <p class="form-message" data-checkout-message role="status"></p>
+          <button class="btn btn-primary" type="submit" data-checkout-submit>Continue to Pay</button>
+        </form>
+        <aside class="checkout-summary"><h2>Order summary</h2><div data-checkout-items></div><div class="cart-summary"><strong>Total</strong><strong data-checkout-total>GH₵0.00</strong></div></aside>
+      </div>
+    </div>
+  </main>
+</div>
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand"><div class="wordmark">De <span class="accent">5th Bite</span></div><p class="footer-hours">Opened daily</p></div>
+    <div class="footer-details">
+      <h2>Contact</h2>
+      <a class="contact-icon-link" href="#" data-wa-general><svg class="social-icon icon-whatsapp" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.2A8.5 8.5 0 1 1 20 11.5Z"/><path d="M8 8.5c.7 2.6 2.2 4.1 4.8 4.8"/></svg>WhatsApp: 024 845 1683</a>
+      <a class="contact-icon-link" href="tel:0595272224"><svg class="social-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.4 19.4 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2z"/></svg>Phone: 059 527 2224</a>
+      <a class="contact-icon-link" href="mailto:de5thbite26@gmail.com"><svg class="social-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>de5thbite26@gmail.com</a>
+    </div>
+    <div class="footer-details">
+      <h2>Follow us</h2>
+      <a class="contact-icon-link" href="https://www.instagram.com/de5th_bite1" target="_blank" rel="noopener noreferrer"><svg class="social-icon icon-instagram" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor"/></svg>Instagram: @de5th_bite1</a>
+      <a class="contact-icon-link" href="https://www.tiktok.com/@de5th_bite" target="_blank" rel="noopener noreferrer"><svg class="social-icon icon-tiktok" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M19.6 7.1a6.6 6.6 0 0 1-4.1-1.4v9.1a6.1 6.1 0 1 1-5.3-6.1v3.2a2.9 2.9 0 1 0 2.1 2.8V2.5h3.2a6.5 6.5 0 0 0 4.1 4.1v.5z"/></svg>TikTok: @de5th_bite</a>
+    </div>
+    <div class="footer-details"><h2>Location</h2><p class="contact-icon-link"><svg class="social-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>XZ Residence, Accra</p></div>
+    <p class="footer-credit">Developed by <a href="https://wa.me/233553498863" target="_blank" rel="noopener noreferrer">CKM Web Solutions</a></p>
+  </div>
+</footer>
+<a href="#" class="wa-float" data-wa-general aria-label="Order on WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18.2a8.1 8.1 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.7-.8.9-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.1 7.1 0 0 1-1.3-1.6c-.1-.2 0-.3.1-.4l.4-.4.2-.4c.1-.1 0-.3 0-.4s-.5-1.3-.7-1.8c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3s-.8.8-.8 2 .8 2.3.9 2.5a9.5 9.5 0 0 0 3.7 3.2c.5.2.9.4 1.2.5.5.2 1 .2 1.3.1.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z"/></svg>
+  <span class="label">Order on WhatsApp</span>
+</a>
+<script src="js/script.js"></script>
+<script src="js/order.js"></script>
+</body>
+</html>
