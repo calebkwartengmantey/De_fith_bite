@@ -708,7 +708,7 @@ if (newsImageDialog instanceof HTMLDialogElement) {
 }
 
 // ---- Home featured carousel ----
-const homeSlides = [...document.querySelectorAll('[data-home-slide]')];
+let homeSlides = [...document.querySelectorAll('[data-home-slide]')];
 const homeDots = document.querySelector('[data-home-dots]');
 if (homeSlides.length && homeDots) {
   let activeSlide = 0;
@@ -726,18 +726,54 @@ if (homeSlides.length && homeDots) {
     });
   }
 
-  homeSlides.forEach((slide, index) => {
-    const dot = document.createElement('button');
-    dot.type = 'button';
-    dot.className = 'home-slide-dot';
-    dot.setAttribute('aria-label', `Show featured item ${index + 1}`);
-    dot.addEventListener('click', () => showHomeSlide(index));
-    homeDots.append(dot);
-  });
+  function renderHomeDots() {
+    homeDots.replaceChildren();
+    homeSlides.forEach((slide, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'home-slide-dot';
+      dot.setAttribute('aria-label', `Show featured item ${index + 1}`);
+      dot.addEventListener('click', () => showHomeSlide(index));
+      homeDots.append(dot);
+    });
+  }
 
   document.querySelector('[data-home-previous]').addEventListener('click', () => showHomeSlide(activeSlide - 1));
   document.querySelector('[data-home-next]').addEventListener('click', () => showHomeSlide(activeSlide + 1));
+  renderHomeDots();
   showHomeSlide(0);
+
+  fetch('/api/news/featured')
+    .then(async (response) => {
+      const result = await response.json();
+      if (!response.ok || !Array.isArray(result.posts)) throw new Error(result.error || 'Could not load homepage news slides.');
+      result.posts.forEach((post) => {
+        const slide = document.createElement('article');
+        slide.className = 'home-slide';
+        slide.dataset.homeSlide = '';
+        slide.setAttribute('aria-label', post.title);
+        const image = document.createElement('img');
+        image.src = post.imageUrl;
+        image.alt = post.title;
+        const caption = document.createElement('div');
+        caption.className = 'home-slide-caption';
+        const label = document.createElement('span');
+        label.textContent = 'News update';
+        const title = document.createElement('h2');
+        title.textContent = post.title;
+        const link = document.createElement('a');
+        link.className = 'btn btn-primary';
+        link.href = 'news.html';
+        link.textContent = 'Read the news';
+        caption.append(label, title, link);
+        slide.append(image, caption);
+        document.querySelector('[data-home-slides]').append(slide);
+      });
+      homeSlides = [...document.querySelectorAll('[data-home-slide]')];
+      renderHomeDots();
+      showHomeSlide(activeSlide);
+    })
+    .catch((error) => console.error('Homepage news slides could not be loaded.', error));
 
   function startRotation() {
     if (!autoRotationAllowed || rotationTimer || document.hidden) return;

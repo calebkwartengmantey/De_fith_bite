@@ -8,8 +8,9 @@ The current site remains static HTML/CSS/JavaScript, served by a Cloudflare Work
 - Cake enquiries remain on WhatsApp because prices vary and cakes require at least three days' notice. Cakes are excluded from Paystack checkout even if they are in the same cart.
 - The backend recalculates prices from D1 and independently verifies Paystack transactions before accepting an order.
 - After payment is verified, the two approved staff numbers receive an order overview and a staff-dashboard link by SMS.
+- Queued or failed SMS notifications are retried automatically every five minutes, up to five total automatic attempts. Staff can also manually retry notifications from the dashboard.
 - The unlinked `admin.html` dashboard uses a configured admin username and long access key. Login does not send SMS.
-- The owner dashboard at `/admin.html` manages orders, menu items, news drafts and scheduled posts, and public business details. Menu changes drive both the customer menu and checkout pricing.
+- The owner dashboard at `/admin.html` manages orders, menu items, news drafts and scheduled posts, homepage banner slides, and public business details. Selected news photos remain in the banner until removed, even if the news post is unpublished or deleted. Menu changes drive both the customer menu and checkout pricing.
 - Owner-uploaded menu and news images are stored in the `de-5th-bite-media` Cloudflare R2 bucket.
 - Order statuses are Received, Preparing, Ready for pickup, and Completed. The customer receives SMS when staff marks Received and Ready for pickup. On completion, the customer receives a direct order-tracking link so they can rate the order and leave a review.
 - Customers track orders with the order number and the same phone number used at checkout.

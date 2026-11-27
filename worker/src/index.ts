@@ -18,7 +18,13 @@ import {
   sha256,
   siteUrl
 } from './shared';
-import { customerStatusSms, deliverOutbox, queueSms } from './sms';
+import {
+  customerStatusSms,
+  deliverOutbox,
+  MAX_AUTOMATIC_SMS_ATTEMPTS,
+  queueSms,
+  SMS_RETRY_INTERVAL_MS
+} from './sms';
 
 interface Product {
   id: string;
@@ -47,6 +53,7 @@ interface NewsPost {
   body: string;
   image_url: string;
   publish_at: string | null;
+  show_on_homepage: number;
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +72,15 @@ interface PaystackResult {
 
 interface Session {
   phone: string;
+}
+
+interface SmsNotificationRow {
+  recipient: string;
+  message_type: string;
+  delivery_status: string;
+  attempts: number;
+  last_error: string | null;
+  created_at: string;
 }
 
 function cookie(request: Request): string | null {
@@ -125,10 +141,18 @@ function publicOrder(row: OrderRow) {
   };
 }
 
+function orderSummaryForSms(order: OrderRow): string {
+  const items = parseItems(order);
+  if (items.length === 0) return 'No items recorded';
+  return items.map((item) => `${item.name}, quantity ${item.quantity}`).join('; ');
+}
+
 async function adminOrderObject(env: Env, row: OrderRow) {
-  const [failures, review] = await Promise.all([
-    env.DB.prepare("SELECT COUNT(*) AS count FROM sms_outbox WHERE order_id = ? AND delivery_status != 'sent'")
-      .bind(row.id).first<{ count: number }>(),
+  const [notifications, review] = await Promise.all([
+    env.DB.prepare(`
+      SELECT recipient, message_type, delivery_status, attempts, last_error, created_at
+      FROM sms_outbox WHERE order_id = ? AND delivery_status != 'sent' ORDER BY id
+    `).bind(row.id).all<SmsNotificationRow>(),
     env.DB.prepare('SELECT rating, review_text, created_at FROM order_reviews WHERE order_id = ?')
       .bind(row.id).first<{ rating: number; review_text: string; created_at: string }>()
   ]);
@@ -142,7 +166,15 @@ async function adminOrderObject(env: Env, row: OrderRow) {
     total: row.total_pesewas / 100,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    failedNotifications: failures?.count || 0,
+    failedNotifications: notifications.results.length,
+    notifications: notifications.results.map((notification) => ({
+      recipient: notification.recipient,
+      messageType: notification.message_type,
+      status: notification.delivery_status,
+      attempts: notification.attempts,
+      error: notification.last_error,
+      createdAt: notification.created_at
+    })),
     review: review ? { rating: review.rating, text: review.review_text, createdAt: review.created_at } : null
   };
 }
@@ -265,7 +297,8 @@ async function confirmPayment(env: Env, reference: string): Promise<{ paid: bool
   const paidAt = current.paid_at || nowIso();
   const itemCount = parseItems(order).reduce((sum, item) => sum + item.quantity, 0);
   const adminLink = siteUrl(env, `/admin.html?order=${encodeURIComponent(order.order_number)}`);
-  const alert = `New paid order ${order.order_number}: ${order.customer_name}, ${itemCount} item(s), GH₵${(order.total_pesewas / 100).toFixed(2)}. View order: ${adminLink}`;
+  const summary = orderSummaryForSms(order);
+  const alert = `New paid order ${order.order_number}: ${summary}. Customer: ${order.customer_name}, ${order.customer_phone}. ${itemCount} item(s), GH₵${(order.total_pesewas / 100).toFixed(2)}. View order: ${adminLink}`;
   const statements = [
     env.DB.prepare(`
       INSERT INTO order_events (order_id, status, created_at)
@@ -429,6 +462,18 @@ async function publicNews(env: Env): Promise<Response> {
   })) });
 }
 
+async function publicHomepageNews(env: Env): Promise<Response> {
+  const rows = await env.DB.prepare(`
+    SELECT news_id, title, image_url FROM homepage_news_slides
+    ORDER BY created_at ASC
+  `).all<{ news_id: string; title: string; image_url: string }>();
+  return json({ posts: rows.results.map((row) => ({
+    id: row.news_id,
+    title: row.title,
+    imageUrl: row.image_url
+  })) });
+}
+
 async function publicSiteSettings(env: Env): Promise<Response> {
   const rows = await env.DB.prepare('SELECT setting_key, setting_value FROM site_settings').all<{ setting_key: string; setting_value: string }>();
   return json({ settings: Object.fromEntries(rows.results.map((row) => [row.setting_key, row.setting_value])) });
@@ -484,6 +529,7 @@ function newsInput(body: Record<string, unknown>) {
   const title = typeof body.title === 'string' ? body.title.trim() : '';
   const text = typeof body.body === 'string' ? body.body.trim() : '';
   const imageUrl = typeof body.imageUrl === 'string' ? body.imageUrl.trim() : '';
+  const showOnHomepage = body.showOnHomepage === true;
   const rawPublishAt = body.publishAt;
   let publishAt: string | null = null;
   if (typeof rawPublishAt === 'string' && rawPublishAt.trim()) {
@@ -496,7 +542,8 @@ function newsInput(body: Record<string, unknown>) {
   if (title.length < 3 || title.length > 140) throw new ApiError(400, 'Enter a news title between 3 and 140 characters.');
   if (text.length < 2 || text.length > 3000) throw new ApiError(400, 'Enter news text between 2 and 3000 characters.');
   if (imageUrl && !validImageUrl(imageUrl)) throw new ApiError(400, 'Choose an uploaded image.');
-  return { title, body: text, imageUrl, publishAt };
+  if (showOnHomepage && !imageUrl) throw new ApiError(400, 'Upload a photo before adding this news post to the homepage banner.');
+  return { title, body: text, imageUrl, publishAt, showOnHomepage };
 }
 
 async function uploadMedia(request: Request, env: Env): Promise<Response> {
@@ -592,13 +639,27 @@ async function adminApi(request: Request, env: Env, path: string): Promise<Respo
     return json({ id: archived.id, active: false });
   }
   if (path === '/api/admin/news' && request.method === 'GET') {
-    const rows = await env.DB.prepare('SELECT * FROM news_posts ORDER BY COALESCE(publish_at, updated_at) DESC').all<NewsPost>();
+    const [rows, orphanedSlides] = await Promise.all([
+      env.DB.prepare('SELECT * FROM news_posts ORDER BY COALESCE(publish_at, updated_at) DESC').all<NewsPost>(),
+      env.DB.prepare(`
+        SELECT slides.news_id, slides.title, slides.image_url
+        FROM homepage_news_slides slides
+        LEFT JOIN news_posts posts ON posts.id = slides.news_id
+        WHERE posts.id IS NULL
+        ORDER BY slides.created_at ASC
+      `).all<{ news_id: string; title: string; image_url: string }>()
+    ]);
     return json({ posts: rows.results.map((row) => ({
       id: row.id,
       title: row.title,
       body: row.body,
       imageUrl: row.image_url,
-      publishAt: row.publish_at
+      publishAt: row.publish_at,
+      showOnHomepage: row.show_on_homepage === 1
+    })), orphanedSlides: orphanedSlides.results.map((row) => ({
+      id: row.news_id,
+      title: row.title,
+      imageUrl: row.image_url
     })) });
   }
   if (path === '/api/admin/news' && request.method === 'POST') {
@@ -606,22 +667,57 @@ async function adminApi(request: Request, env: Env, path: string): Promise<Respo
     const input = newsInput(await readJson(request));
     const id = crypto.randomUUID();
     const now = nowIso();
-    await env.DB.prepare(`
-      INSERT INTO news_posts (id, title, body, image_url, publish_at, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, input.title, input.body, input.imageUrl, input.publishAt, now, now).run();
+    const insertPost = env.DB.prepare(`
+      INSERT INTO news_posts (id, title, body, image_url, publish_at, show_on_homepage, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, input.title, input.body, input.imageUrl, input.publishAt, input.showOnHomepage ? 1 : 0, now, now);
+    if (input.showOnHomepage) {
+      await env.DB.batch([
+        insertPost,
+        env.DB.prepare(`
+          INSERT INTO homepage_news_slides (news_id, title, image_url, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?)
+        `).bind(id, input.title, input.imageUrl, now, now)
+      ]);
+    } else {
+      await insertPost.run();
+    }
     return json({ id }, 201);
+  }
+  const orphanedNewsSlideMatch = path.match(/^\/api\/admin\/news-slides\/([0-9a-f-]{36})$/);
+  if (orphanedNewsSlideMatch && request.method === 'DELETE') {
+    ensureSameOrigin(request);
+    const deleted = await env.DB.prepare(`
+      DELETE FROM homepage_news_slides
+      WHERE news_id = ? AND NOT EXISTS (SELECT 1 FROM news_posts WHERE id = ?)
+      RETURNING news_id
+    `).bind(orphanedNewsSlideMatch[1], orphanedNewsSlideMatch[1]).first<{ news_id: string }>();
+    if (!deleted) throw new ApiError(404, 'Retained homepage slide not found.');
+    return json({ id: deleted.news_id });
   }
   const newsMatch = path.match(/^\/api\/admin\/news\/([0-9a-f-]{36})$/);
   if (newsMatch && request.method === 'PUT') {
     ensureSameOrigin(request);
     const input = newsInput(await readJson(request));
-    const updated = await env.DB.prepare(`
-      UPDATE news_posts SET title = ?, body = ?, image_url = ?, publish_at = ?, updated_at = ?
-      WHERE id = ? RETURNING id
-    `).bind(input.title, input.body, input.imageUrl, input.publishAt, nowIso(), newsMatch[1]).first<{ id: string }>();
-    if (!updated) throw new ApiError(404, 'News post not found.');
-    return json({ id: updated.id });
+    const now = nowIso();
+    const existing = await env.DB.prepare('SELECT id FROM news_posts WHERE id = ?')
+      .bind(newsMatch[1]).first<{ id: string }>();
+    if (!existing) throw new ApiError(404, 'News post not found.');
+    const statements = [
+      env.DB.prepare(`
+        UPDATE news_posts SET title = ?, body = ?, image_url = ?, publish_at = ?, show_on_homepage = ?, updated_at = ?
+        WHERE id = ?
+      `).bind(input.title, input.body, input.imageUrl, input.publishAt, input.showOnHomepage ? 1 : 0, now, newsMatch[1]),
+      input.showOnHomepage
+        ? env.DB.prepare(`
+            INSERT INTO homepage_news_slides (news_id, title, image_url, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(news_id) DO UPDATE SET title = excluded.title, image_url = excluded.image_url, updated_at = excluded.updated_at
+          `).bind(newsMatch[1], input.title, input.imageUrl, now, now)
+        : env.DB.prepare('DELETE FROM homepage_news_slides WHERE news_id = ?').bind(newsMatch[1])
+    ];
+    await env.DB.batch(statements);
+    return json({ id: existing.id });
   }
   if (newsMatch && request.method === 'DELETE') {
     ensureSameOrigin(request);
@@ -719,6 +815,7 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
   if (request.method === 'GET' && path === '/api/reviews/featured') return featuredReviews(env);
   if (request.method === 'GET' && path === '/api/menu') return publicMenu(env);
   if (request.method === 'GET' && path === '/api/news') return publicNews(env);
+  if (request.method === 'GET' && path === '/api/news/featured') return publicHomepageNews(env);
   if (request.method === 'GET' && path === '/api/site-settings') return publicSiteSettings(env);
   if (request.method === 'POST' && path === '/api/checkout') return createCheckout(request, env);
   if (request.method === 'POST' && path === '/api/payment/confirm') return confirmRoute(request, env);
@@ -727,6 +824,32 @@ async function handleApi(request: Request, env: Env): Promise<Response> {
   if (request.method === 'POST' && path === '/api/orders/review') return submitOrderReview(request, env);
   if (path.startsWith('/api/admin/')) return adminApi(request, env, path);
   throw new ApiError(404, 'API endpoint not found.');
+}
+
+async function retryDueSms(env: Env): Promise<void> {
+  const now = Date.now();
+  const retryBefore = new Date(now - SMS_RETRY_INTERVAL_MS).toISOString();
+  const staleSendingBefore = new Date(now - 10 * 60 * 1000).toISOString();
+  const dueOrders = await env.DB.prepare(`
+    SELECT DISTINCT order_id FROM sms_outbox
+    WHERE attempts < ? AND (
+      (delivery_status IN ('pending', 'failed')
+        AND (last_attempt_at IS NULL OR last_attempt_at <= ?))
+      OR (delivery_status = 'sending' AND sending_at < ?)
+    )
+    ORDER BY order_id LIMIT 100
+  `).bind(MAX_AUTOMATIC_SMS_ATTEMPTS, retryBefore, staleSendingBefore).all<{ order_id: string }>();
+
+  for (const { order_id } of dueOrders.results) {
+    const delivered = await deliverOutbox(
+      env,
+      order_id,
+      true,
+      MAX_AUTOMATIC_SMS_ATTEMPTS,
+      retryBefore
+    );
+    if (!delivered) console.warn(`Automatic SMS retry still has failures for order ${order_id}.`);
+  }
 }
 
 export default {
@@ -744,5 +867,8 @@ export default {
       console.error('API request failed', error);
       return json({ error: 'The request could not be completed. Please try again.' }, 500);
     }
+  },
+  async scheduled(_controller: ScheduledController, env: Env): Promise<void> {
+    await retryDueSms(env);
   }
 };

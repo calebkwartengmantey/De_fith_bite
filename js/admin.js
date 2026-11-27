@@ -67,6 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
       status.className = `status-pill status-${order.status}`;
       status.textContent = labels[order.status];
       button.append(number, customer, status);
+      if (order.failedNotifications) {
+        const notification = document.createElement('span');
+        notification.className = 'admin-card-notification';
+        notification.textContent = `SMS needs attention (${order.failedNotifications})`;
+        button.append(notification);
+      }
       if (order.review) {
         const review = document.createElement('span');
         review.className = 'admin-card-review';
@@ -132,6 +138,41 @@ document.addEventListener('DOMContentLoaded', () => {
       detail.append(heading, status, customer, items, total, review);
     } else {
       detail.append(heading, status, customer, items, total);
+    }
+    if (order.notifications?.length) {
+      const notificationPanel = document.createElement('section');
+      notificationPanel.className = 'admin-sms-alert';
+      const notificationHeading = document.createElement('h3');
+      notificationHeading.textContent = 'SMS needing attention';
+      notificationPanel.append(notificationHeading);
+      const notificationList = document.createElement('ul');
+      order.notifications.forEach((notification) => {
+        const item = document.createElement('li');
+        const typeLabels = {
+          owner_new_order: 'New order alert',
+          customer_received: 'Order received update',
+          customer_ready: 'Ready for pickup update',
+          customer_completed: 'Order completed update'
+        };
+        const statusLabels = {
+          pending: 'Queued',
+          sending: 'Sending',
+          failed: 'Failed'
+        };
+        const title = document.createElement('strong');
+        title.textContent = `${typeLabels[notification.messageType] || 'Order update'} · ${statusLabels[notification.status] || notification.status}`;
+        const recipient = document.createElement('span');
+        recipient.textContent = `To ${notification.recipient} · ${notification.attempts} attempt(s)`;
+        item.append(title, recipient);
+        if (notification.error) {
+          const error = document.createElement('small');
+          error.textContent = notification.error;
+          item.append(error);
+        }
+        notificationList.append(item);
+      });
+      notificationPanel.append(notificationList);
+      detail.append(notificationPanel);
     }
     const actions = document.createElement('div');
     actions.className = 'admin-actions';

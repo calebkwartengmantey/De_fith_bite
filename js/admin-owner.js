@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const settingsForm = dashboard.querySelector('[data-settings-form]');
   let products = [];
   let posts = [];
+  let orphanedSlides = [];
   let activeMenuCategory = 'shawarma';
 
   async function request(path, options = {}) {
@@ -229,12 +230,18 @@ document.addEventListener('DOMContentLoaded', () => {
     dashboard.querySelector('[data-news-scheduled-count]').textContent = String(counts.Scheduled);
     dashboard.querySelector('[data-news-draft-count]').textContent = String(counts.Draft);
     list.replaceChildren();
-    if (!visible.length) {
+    if (!visible.length && !orphanedSlides.length) {
       const empty = document.createElement('p');
       empty.className = 'admin-list-empty';
       empty.textContent = posts.length ? 'No posts match your search.' : 'No news posts yet. Create a draft or schedule your first update.';
       list.append(empty);
       return;
+    }
+    if (!visible.length) {
+      const empty = document.createElement('p');
+      empty.className = 'admin-list-empty';
+      empty.textContent = 'No posts match your search.';
+      list.append(empty);
     }
     visible.forEach((post) => {
       const card = document.createElement('article');
@@ -274,12 +281,38 @@ document.addEventListener('DOMContentLoaded', () => {
       card.append(image, copy, actions);
       list.append(card);
     });
+    orphanedSlides.forEach((slide) => {
+      const card = document.createElement('article');
+      card.className = 'owner-record-card';
+      const image = document.createElement('img');
+      image.className = 'owner-record-image';
+      image.src = slide.imageUrl;
+      image.alt = '';
+      const copy = document.createElement('div');
+      copy.className = 'owner-record-copy';
+      const title = document.createElement('h4');
+      title.textContent = slide.title;
+      const note = document.createElement('p');
+      note.textContent = 'Retained in the homepage banner; the news post has been deleted.';
+      copy.append(title, note);
+      const actions = document.createElement('div');
+      actions.className = 'owner-record-actions';
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'btn btn-outline';
+      remove.textContent = 'Remove from banner';
+      remove.addEventListener('click', () => removeOrphanedSlide(slide));
+      actions.append(remove);
+      card.append(image, copy, actions);
+      list.append(card);
+    });
   }
 
   async function loadPosts() {
     setMessage('[data-news-form-message]', 'Loading news posts…');
     const result = await request('/news');
     posts = result.posts;
+    orphanedSlides = result.orphanedSlides || [];
     renderPosts();
     setMessage('[data-news-form-message]', '');
   }
@@ -288,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     newsForm.reset();
     newsForm.elements.id.value = '';
     newsForm.elements.imageUrl.value = '';
+    newsForm.elements.showOnHomepage.checked = false;
     const preview = newsForm.querySelector('[data-news-image-preview]');
     preview.hidden = true;
     preview.removeAttribute('src');
@@ -304,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ? new Date(new Date(post.publishAt).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)
       : '';
     newsForm.elements.imageUrl.value = post.imageUrl;
+    newsForm.elements.showOnHomepage.checked = post.showOnHomepage;
     const preview = newsForm.querySelector('[data-news-image-preview]');
     preview.src = post.imageUrl || '/images/Logo.png';
     preview.hidden = false;
@@ -319,6 +354,17 @@ document.addEventListener('DOMContentLoaded', () => {
       await request(`/news/${encodeURIComponent(post.id)}`, { method: 'DELETE' });
       await loadPosts();
       setMessage('[data-news-form-message]', 'News post deleted.');
+    } catch (error) {
+      setMessage('[data-news-form-message]', error.message, true);
+    }
+  }
+
+  async function removeOrphanedSlide(slide) {
+    if (!window.confirm(`Remove “${slide.title}” from the homepage banner?`)) return;
+    try {
+      await request(`/news-slides/${encodeURIComponent(slide.id)}`, { method: 'DELETE' });
+      await loadPosts();
+      setMessage('[data-news-form-message]', 'Homepage slide removed.');
     } catch (error) {
       setMessage('[data-news-form-message]', error.message, true);
     }
@@ -438,7 +484,8 @@ document.addEventListener('DOMContentLoaded', () => {
           title: newsForm.elements.title.value,
           body: newsForm.elements.body.value,
           imageUrl: newsForm.elements.imageUrl.value,
-          publishAt: publishValue ? new Date(publishValue).toISOString() : null
+          publishAt: publishValue ? new Date(publishValue).toISOString() : null,
+          showOnHomepage: newsForm.elements.showOnHomepage.checked
         })
       });
       resetNewsForm();

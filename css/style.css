@@ -1157,6 +1157,7 @@ footer {
 .admin-order-card .status-ready { background: #ffebd9; color: #925114; }
 .admin-order-card .status-completed { background: #e3f4ea; color: #286348; }
 .admin-order-card .admin-card-review { grid-column: 1 / -1; color: #986d00; font-size: 12px; font-weight: 600; }
+.admin-order-card .admin-card-notification { grid-column: 1 / -1; color: #9a3e18; font-size: 12px; font-weight: 700; }
 .admin-list-empty { padding: 28px 16px; border-radius: 12px; background: #faf9f5; color: var(--color-text-muted); text-align: center; }
 .admin-order-detail { position: sticky; top: 20px; min-height: 330px; padding: 26px; }
 .admin-empty-detail { display: grid; min-height: 270px; align-content: center; justify-items: center; padding: 26px; text-align: center; }
@@ -1166,6 +1167,11 @@ footer {
 .admin-order-detail > h2 { font-size: 27px; }
 .admin-order-detail .current-status { display: inline-flex; padding: 8px 12px; border-radius: 999px; background: #fff2c8; color: #745400; font-size: 13px; }
 .admin-customer { margin: 16px 0; color: var(--color-text-muted); overflow-wrap: anywhere; }
+.admin-sms-alert { margin-top: 20px; padding: 16px; border: 1px solid #e6b49b; border-left: 4px solid #b44b20; border-radius: 8px; background: #fff7f2; }
+.admin-sms-alert h3 { margin: 0 0 10px; color: #843416; font-size: 16px; }
+.admin-sms-alert ul { display: grid; gap: 12px; margin: 0; padding-left: 20px; }
+.admin-sms-alert li { display: grid; gap: 3px; overflow-wrap: anywhere; }
+.admin-sms-alert li span, .admin-sms-alert li small { color: var(--color-text-muted); font-size: 12px; }
 .admin-actions { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--color-border); }
 .admin-body footer { margin-top: 8px; }
 .menu-cart-note {

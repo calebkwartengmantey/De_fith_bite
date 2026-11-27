@@ -6,6 +6,9 @@ interface OutboxRow {
   message: string;
 }
 
+export const MAX_AUTOMATIC_SMS_ATTEMPTS = 5;
+export const SMS_RETRY_INTERVAL_MS = 5 * 60 * 1000;
+
 export async function sendSms(env: Env, recipient: string, message: string): Promise<void> {
   if (!env.ARKESEL_API_KEY || !env.ARKESEL_SENDER_ID) throw new Error('Arkesel SMS is not configured.');
   const response = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
@@ -28,24 +31,42 @@ export async function queueSms(env: Env, orderId: string, recipient: string, typ
   `).bind(orderId, recipient, type, message, nowIso()).run();
 }
 
-export async function deliverOutbox(env: Env, orderId: string, retry = false): Promise<boolean> {
+export async function deliverOutbox(
+  env: Env,
+  orderId: string,
+  retry = false,
+  maxAttempts?: number,
+  lastAttemptBefore?: string
+): Promise<boolean> {
   const staleSendingBefore = new Date(Date.now() - 10 * 60 * 1000).toISOString();
-  const condition = retry
+  const statusCondition = retry
     ? "(delivery_status IN ('pending', 'failed') OR (delivery_status = 'sending' AND sending_at < ?))"
     : "delivery_status = 'pending'";
+  const attemptCondition = maxAttempts === undefined ? '' : ' AND attempts < ?';
+  const dueCondition = lastAttemptBefore === undefined ? '' : ' AND (last_attempt_at IS NULL OR last_attempt_at <= ?)';
+  const selectBindings: (string | number)[] = [orderId];
+  if (retry) selectBindings.push(staleSendingBefore);
+  if (maxAttempts !== undefined) selectBindings.push(maxAttempts);
+  if (lastAttemptBefore !== undefined) selectBindings.push(lastAttemptBefore);
   const rows = await env.DB.prepare(`
     SELECT id, recipient, message FROM sms_outbox
-    WHERE order_id = ? AND ${condition} ORDER BY id
-  `).bind(...(retry ? [orderId, staleSendingBefore] : [orderId])).all<OutboxRow>();
+    WHERE order_id = ? AND ${statusCondition}${attemptCondition}${dueCondition} ORDER BY id
+  `).bind(...selectBindings).all<OutboxRow>();
   let success = true;
   for (const row of rows.results) {
-    const claimCondition = retry
-      ? "(delivery_status IN ('pending', 'failed') OR (delivery_status = 'sending' AND sending_at < ?))"
-      : "delivery_status = 'pending'";
+    const claimedAt = nowIso();
     const claimed = await env.DB.prepare(`
-      UPDATE sms_outbox SET delivery_status = 'sending', attempts = attempts + 1, sending_at = ?
-      WHERE id = ? AND ${claimCondition} RETURNING id
-    `).bind(...(retry ? [nowIso(), row.id, staleSendingBefore] : [nowIso(), row.id])).first<{ id: number }>();
+      UPDATE sms_outbox
+      SET delivery_status = 'sending', attempts = attempts + 1, sending_at = ?, last_attempt_at = ?
+      WHERE id = ? AND ${statusCondition}${attemptCondition}${dueCondition} RETURNING id
+    `).bind(
+      claimedAt,
+      claimedAt,
+      row.id,
+      ...(retry ? [staleSendingBefore] : []),
+      ...(maxAttempts === undefined ? [] : [maxAttempts]),
+      ...(lastAttemptBefore === undefined ? [] : [lastAttemptBefore])
+    ).first<{ id: number }>();
     if (!claimed) {
       success = false;
       continue;
@@ -58,11 +79,12 @@ export async function deliverOutbox(env: Env, orderId: string, retry = false): P
       `).bind(nowIso(), row.id).run();
     } catch (error) {
       const reference = randomHex(4);
+      const errorMessage = error instanceof Error ? error.message : 'Unexpected SMS delivery error.';
       console.error(`SMS delivery ${reference} failed`, error);
       await env.DB.prepare(`
         UPDATE sms_outbox SET delivery_status = 'failed', last_error = ?, sending_at = NULL
         WHERE id = ? AND delivery_status = 'sending'
-      `).bind(`Delivery failed (${reference}).`, row.id).run();
+      `).bind(`${errorMessage.slice(0, 180)} (ref ${reference}).`, row.id).run();
       success = false;
     }
   }

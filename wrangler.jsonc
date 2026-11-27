@@ -1,0 +1,34 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "de-5th-bite",
+  "main": "worker/src/index.ts",
+  "compatibility_date": "2026-10-23",
+  "workers_dev": false,
+  "triggers": {
+    "crons": ["*/5 * * * *"]
+  },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/media/*"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "de-5th-bite-media"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "de-5th-bite",
+      "database_id": "7c58b890-339b-4f94-bce4-be92bd0217af",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "PAYSTACK_CURRENCY": "GHS",
+    "ADMIN_PHONES": "233248451683,233595272224",
+    "SITE_URL": "https://de5thbite.com"
+  }
+}

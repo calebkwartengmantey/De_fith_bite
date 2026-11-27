@@ -140,6 +140,7 @@
                 <label>Publish date and time<input type="datetime-local" name="publishAt"><small>Leave blank to save as a draft. Choose a future time to schedule.</small></label>
                 <label>Photo (JPEG, PNG, or WebP; up to 5 MB)<input type="file" accept="image/jpeg,image/png,image/webp" data-owner-image-file></label>
                 <input type="hidden" name="imageUrl">
+                <label class="owner-check"><input type="checkbox" name="showOnHomepage"><span>Add to homepage banner<small>Keep this news image in the homepage carousel until you uncheck it. A photo is required.</small></span></label>
                 <img class="owner-image-preview" data-news-image-preview alt="Selected news preview" hidden>
                 <p class="form-message" data-news-form-message role="status"></p>
                 <div class="owner-form-actions"><button class="btn btn-primary" type="submit">Save post</button><button class="btn btn-outline" type="button" data-news-cancel>Cancel</button></div>
